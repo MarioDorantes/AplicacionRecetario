@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.app.AlertDialog
 
 class GestionarBebidas : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,28 +131,48 @@ class GestionarBebidas : AppCompatActivity() {
         }
 
         btnEliminar.setOnClickListener {
-            val admin = SQL(this, "administracion", null, 1)
-            val bd = admin.writableDatabase
 
-            try{
-                val cant = bd.delete("bebidas", "nombreBebida = '${txtNombre.text.toString()}'", null)
+            val mensaje = AlertDialog.Builder(this)
+            mensaje.setTitle("Mensaje de confirmación")
+            mensaje.setMessage("¿Desea eliminar este registro?")
 
-                txtNombre.setText("")
-                txtIngredientes.setText("")
-                txtProcedimiento.setText("")
+            mensaje.setPositiveButton(android.R.string.yes) { dialog, which ->
+                Toast.makeText(applicationContext,
+                    android.R.string.yes, Toast.LENGTH_SHORT). show()
 
-                if(cant == 1){
-                    Toast.makeText(this, "Eliminación exitosa", Toast.LENGTH_SHORT).show()
-                }else{
-                    Toast.makeText(this, "Eliminación NO exitosa", Toast.LENGTH_SHORT).show()
+                val admin = SQL(this, "administracion", null, 1)
+                val bd = admin.writableDatabase
+
+                try{
+                    val cant = bd.delete("bebidas", "nombreBebida = '${txtNombre.text.toString()}'", null)
+
+                    txtNombre.setText("")
+                    txtIngredientes.setText("")
+                    txtProcedimiento.setText("")
+
+                    if(cant == 1){
+                        Toast.makeText(this, "Eliminación exitosa", Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(this, "Eliminación NO exitosa", Toast.LENGTH_SHORT).show()
+                    }
+                } catch(e: Exception){
+                    Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_SHORT).show()
+                } finally{
+                    bd.close()
                 }
-            } catch(e: Exception){
-                Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_SHORT).show()
-            } finally{
-                bd.close()
+
             }
 
+            mensaje.setNegativeButton(android.R.string.no) { dialog, which ->
+                Toast.makeText(applicationContext,
+                    android.R.string.no, Toast.LENGTH_SHORT).show()
+            }
+
+            mensaje.show()
+
         }
+
+
 
     }
 }
